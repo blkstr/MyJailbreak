@@ -6,6 +6,7 @@ $SourceFilesDir = Join-Path $RootDir "addons\sourcemod\scripting\MyJailbreak" -R
 $OutputDir = Join-Path $RootDir "addons\sourcemod\plugins\MyJailbreak"
 $SMCompilerRoot = "build\windows\sourcemod-1.10.0"
 $SMCompiler = Join-Path $RootDir "$SMCompilerRoot\spcomp.exe" -Resolve
+$MyJailbreakInc = Join-Path $RootDir "addons\sourcemod\scripting\include\myjailbreak.inc"
 
 Copy-Item $SMCompiler -Destination $ScriptingDir
 $SMCompilerCopy = Join-Path $ScriptingDir "spcomp.exe" -Resolve
@@ -38,6 +39,10 @@ $IncludeList = @(
   "$SMCompilerRoot\include"
 )
 
+Copy-Item $MyJailbreakInc "$MyJailbreakInc.bak"
+$CommitShortHash = & git rev-parse --short HEAD
+(Get-Content $MyJailbreakInc) -replace '<COMMIT>', $CommitShortHash | Set-Content $MyJailbreakInc
+
 $Params = [System.Collections.ArrayList]@()
 
 foreach ($Path in $IncludeList) {
@@ -68,5 +73,8 @@ finally {
   Set-Location $CurrentDir
   Remove-Item $SMCompilerCopy
 }
+
+Remove-Item $MyJailbreakInc
+Rename-Item "$MyJailbreakInc.bak" $MyJailbreakInc
 
 Pause
