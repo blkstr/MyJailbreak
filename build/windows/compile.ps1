@@ -11,7 +11,7 @@ $MyJailbreakInc = Join-Path $RootDir "addons\sourcemod\scripting\include\myjailb
 Copy-Item $SMCompiler -Destination $ScriptingDir
 $SMCompilerCopy = Join-Path $ScriptingDir "spcomp.exe" -Resolve
 
-if (!(Test-Path -PathType container $OutputDir)) {
+if (!(Test-Path -PathType Container $OutputDir)) {
   New-Item -ItemType Directory -Path $OutputDir
 }
 
@@ -39,12 +39,8 @@ $IncludeList = @(
   "$SMCompilerRoot\include"
 )
 
-Copy-Item $MyJailbreakInc "$MyJailbreakInc.bak"
-$CommitShortHash = & git rev-parse --short HEAD
-(Get-Content $MyJailbreakInc) -replace '<COMMIT>', $CommitShortHash | Set-Content $MyJailbreakInc
-
+# Add include directories to param list
 $Params = [System.Collections.ArrayList]@()
-
 foreach ($Path in $IncludeList) {
   $AbsolutePath = Join-Path $RootDir $Path
   $null = $Params.Add("-i$AbsolutePath")
@@ -53,11 +49,16 @@ foreach ($Path in $IncludeList) {
 Set-Location $ScriptingDir
 
 try {
+  # Add commit hash to the MYJB_VERSION preprocessor directives
+  Copy-Item $MyJailbreakInc "$MyJailbreakInc.bak"
+  $CommitShortHash = & git rev-parse --short HEAD
+  (Get-Content $MyJailbreakInc) -Replace '<COMMIT>', $CommitShortHash | Set-Content $MyJailbreakInc
+
   foreach ($FilePath in $SourceFilesList) {
     $AbsolutePath = Join-Path $SourceFilesDir $FilePath -Resolve
     $ParentPath = Join-Path $OutputDir (Split-Path -Path $FilePath)
     
-    if (!(Test-Path -PathType container $ParentPath)) {
+    if (!(Test-Path -PathType Container $ParentPath)) {
       New-Item -ItemType Directory -Path $ParentPath
     }
     
@@ -72,9 +73,11 @@ catch {
 finally {
   Set-Location $CurrentDir
   Remove-Item $SMCompilerCopy
+  
+  if ((Test-Path -PathType Leaf "$MyJailbreakInc.bak")) {
+    Remove-Item $MyJailbreakInc
+    Rename-Item "$MyJailbreakInc.bak" $MyJailbreakInc
+  }
 }
-
-Remove-Item $MyJailbreakInc
-Rename-Item "$MyJailbreakInc.bak" $MyJailbreakInc
 
 Pause
