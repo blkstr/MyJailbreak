@@ -254,6 +254,18 @@ native int warden_deputy_getlast();
 native void warden_handcuffs_givepaperclip(int client, int amount);
 
 
+
+/*********************************************************
+ * Give a client an amount of handcuffs
+ *
+ * @param client		The client index
+ * @param amount		The amount of handcuffs
+ * @NoReturn
+ *********************************************************/
+native void warden_handcuffs_givehandcuffs(int client, int amount);
+
+
+
 /*********************************************************
  * returns if client is in handcuffs
  *
