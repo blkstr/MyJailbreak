@@ -861,7 +861,7 @@ bool HasClientWeaponClass(int client, const char[] className)
 		int weaponEntity = GetEntPropEnt(client, Prop_Send, "m_hMyWeapons", i);
 		
 		if (weaponEntity == -1 || !GetEntityClassname(weaponEntity, weaponClassName, sizeof(weaponClassName)))
-			continue
+			continue;
 
 		if (StrEqual(weaponClassName, className))
 			return true;
@@ -897,7 +897,7 @@ public int Native_GiveHandCuffs(Handle plugin, int argc)
 
 	g_iPlayerHandCuffs[client] += amount;
 	
-	if (!HasClientWeaponClass("weapon_taser"))
+	if (!HasClientWeaponClass(client, "weapon_taser"))
 	{	
 		GivePlayerItem(client, "weapon_taser");
 	}

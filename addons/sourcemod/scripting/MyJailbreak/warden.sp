@@ -1288,7 +1288,7 @@ public void OnMapEnd()
 }
 
 // When a last request is available
-public void OnAvailableLR(int Announced)
+public int OnAvailableLR(int Announced)
 {
 	g_bIsLR = true;
 
@@ -1303,6 +1303,8 @@ public void OnAvailableLR(int Announced)
 		RemoveTheWarden();
 		Forward_OnWardenRemovedByAdmin(0); // 0 = console
 	}
+
+	return 0;
 }
 
 // When a event game starts during round.
