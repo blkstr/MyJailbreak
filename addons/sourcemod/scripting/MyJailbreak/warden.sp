@@ -1742,6 +1742,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("warden_deputy_getlast", Native_GetLastDeputy);
 
 	CreateNative("warden_handcuffs_givepaperclip", Native_GivePaperClip);
+	CreateNative("warden_handcuffs_givehandcuffs", Native_GiveHandCuffs);
 	CreateNative("warden_handcuffs_iscuffed", Native_IsClientCuffed);
 
 	CreateNative("warden_freeday_set", Native_GiveFreeday);

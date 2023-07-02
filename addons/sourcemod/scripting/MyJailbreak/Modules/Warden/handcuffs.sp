@@ -848,12 +848,33 @@ float GetDistance(int client, int target)
 	return GetVectorDistance(clientVec, targetVec);
 }
 
+bool HasClientWeaponClass(int client, const char[] className)
+{
+	if (!IsValidClient(client) || (GetClientTeam(client) == CS_TEAM_SPECTATOR))
+		return false;
+	
+	char weaponClassName[64];
+	int weaponsArrayCount = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+
+	for (int i = 0; i < weaponsArrayCount; i++)
+	{
+		int weaponEntity = GetEntPropEnt(client, Prop_Send, "m_hMyWeapons", i);
+		
+		if (weaponEntity == -1 || !GetEntityClassname(weaponEntity, weaponClassName, sizeof(weaponClassName)))
+			continue
+
+		if (StrEqual(weaponClassName, className))
+			return true;
+	}
+	
+	return false;
+}
+
 
 /******************************************************************************
                    NATIVES
 ******************************************************************************/
 
-// Remove current Warden
 public int Native_GivePaperClip(Handle plugin, int argc)
 {
 	int client = GetNativeCell(1);
@@ -866,7 +887,22 @@ public int Native_GivePaperClip(Handle plugin, int argc)
 	CreateTimer(2.0, Timer_StillPaperClip, client);
 }
 
-// Is Client in handcuffs
+public int Native_GiveHandCuffs(Handle plugin, int argc)
+{
+	int client = GetNativeCell(1);
+	int amount = GetNativeCell(2);
+
+	if (!IsClientInGame(client) && !IsClientConnected(client))
+		ThrowNativeError(SP_ERROR_INDEX, "Client index %i is invalid", client);
+
+	g_iPlayerHandCuffs[client] += amount;
+	
+	if (!HasClientWeaponClass("weapon_taser"))
+	{	
+		GivePlayerItem(client, "weapon_taser");
+	}
+}
+
 public int Native_IsClientCuffed(Handle plugin, int argc)
 {
 	int client = GetNativeCell(1);
