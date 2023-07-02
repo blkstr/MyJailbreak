@@ -206,8 +206,6 @@ public void HandCuffs_Event_ItemEquip(Event event, const char[] name, bool dontB
 		return;
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	bool canAllPlayersUseHandCuffs = gc_bHandCuffAll.BoolValue;
-	bool canDeputyUseHandCuffs = gc_bHandCuffDeputy.BoolValue;
 	char weapon[32];
 	event.GetString("item", weapon, sizeof(weapon));
 	g_sEquipWeapon[client] = weapon;
@@ -215,7 +213,7 @@ public void HandCuffs_Event_ItemEquip(Event event, const char[] name, bool dontB
 	if (!StrEqual(weapon, "taser"))
 		return;
 
-	if (!canAllPlayersUseHandCuffs && !IsClientWarden(client) && !(canDeputyUseHandCuffs && IsClientDeputy(client)))
+	if (!gc_bHandCuffAll.BoolValue && !IsClientWarden(client) && !(gc_bHandCuffDeputy.BoolValue && IsClientDeputy(client)))
 		return;
 
 	if (g_iPlayerHandCuffs[client] == 0)
@@ -247,10 +245,8 @@ public void HandCuffs_Event_WeaponFire(Event event, char[] name, bool dontBroadc
 		return;
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	bool canAllPlayersUseHandCuffs = gc_bHandCuffAll.BoolValue;
-	bool canDeputyUseHandCuffs = gc_bHandCuffDeputy.BoolValue;
 
-	if (!canAllPlayersUseHandCuffs && !IsClientWarden(client) && !(canDeputyUseHandCuffs && IsClientDeputy(client)))
+	if (!gc_bHandCuffAll.BoolValue && !IsClientWarden(client) && !(gc_bHandCuffDeputy.BoolValue && IsClientDeputy(client)))
 		return;
 
 	if ((g_iPlayerHandCuffs[client] != 0) || (g_iCuffed > 0))
@@ -282,7 +278,7 @@ public Action HandCuffs_OnPlayerRunCmd(int client, int &buttons, int &impulse, f
 {
 	if (buttons & IN_ATTACK2)
 	{
-		if (gc_bHandCuff.BoolValue && (StrEqual(g_sEquipWeapon[client], "taser")) && (IsClientWarden(client) || (IsClientDeputy(client) && gc_bHandCuffDeputy.BoolValue)))
+		if (gc_bHandCuff.BoolValue && (StrEqual(g_sEquipWeapon[client], "taser")) && (gc_bHandCuffAll.BoolValue || IsClientWarden(client) || (IsClientDeputy(client) && gc_bHandCuffDeputy.BoolValue)))
 		{
 			int Target = GetClientAimTarget(client, true);
 			
@@ -376,9 +372,6 @@ public void OnButtonRelease2(int client, int button)
 
 public Action HandCuffs_OnTakedamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	bool canAllPlayersUseHandCuffs = gc_bHandCuffAll.BoolValue;
-	bool canDeputyUseHandCuffs = gc_bHandCuffDeputy.BoolValue;
-	bool canHandCuffCTs = gc_bHandCuffCT.BoolValue;
 	char sWeapon[32];
 
 	if (!IsValidClient(victim, true, false) || attacker == victim || !IsValidClient(attacker, true, false))
@@ -390,13 +383,13 @@ public Action HandCuffs_OnTakedamage(int victim, int &attacker, int &inflictor, 
 	if (g_bCuffed[attacker])
 		return Plugin_Handled;
 
-	if (!canAllPlayersUseHandCuffs && !IsClientWarden(attacker) && !(canDeputyUseHandCuffs && IsClientDeputy(attacker)))
+	if (!gc_bHandCuffAll.BoolValue && !IsClientWarden(attacker) && !(gc_bHandCuffDeputy.BoolValue && IsClientDeputy(attacker)))
 		return Plugin_Continue;
 
 	if (!IsValidEdict(weapon))
 		return Plugin_Continue;
 
-	if ((GetClientTeam(attacker) == CS_TEAM_CT) && (GetClientTeam(victim) == CS_TEAM_CT) && !canHandCuffCTs)
+	if ((GetClientTeam(attacker) == CS_TEAM_CT) && (GetClientTeam(victim) == CS_TEAM_CT) && !gc_bHandCuffCT.BoolValue)
 		return Plugin_Continue;
 
 	if (IsValidEntity(weapon))
