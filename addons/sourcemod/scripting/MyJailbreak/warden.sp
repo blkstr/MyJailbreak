@@ -1299,7 +1299,7 @@ public void OnMapEnd()
 }
 
 // When a last request is available
-public void OnAvailableLR(int Announced)
+public int OnAvailableLR(int Announced)
 {
 	g_bIsLR = true;
 
@@ -1315,6 +1315,8 @@ public void OnAvailableLR(int Announced)
 		RemoveTheWarden();
 		Forward_OnWardenRemovedByAdmin(0); // 0 = console
 	}
+
+	return 0;
 }
 
 // When a event game starts during round.
@@ -1754,6 +1756,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("warden_deputy_getlast", Native_GetLastDeputy);
 
 	CreateNative("warden_handcuffs_givepaperclip", Native_GivePaperClip);
+	CreateNative("warden_handcuffs_givehandcuffs", Native_GiveHandCuffs);
 	CreateNative("warden_handcuffs_iscuffed", Native_IsClientCuffed);
 
 	CreateNative("warden_freeday_set", Native_GiveFreeday);
