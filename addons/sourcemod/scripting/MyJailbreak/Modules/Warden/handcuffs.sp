@@ -193,7 +193,7 @@ public void HandCuffs_Event_RoundStart(Event event, const char[] name, bool dont
 	{
 		if (IsClientInGame(i))
 		{
-			g_iPlayerHandCuffs[i] = gc_iHandCuffsNumber.IntValue;
+			g_iPlayerHandCuffs[i] = (GetClientTeam(i) == CS_TEAM_T) ? 0 : gc_iHandCuffsNumber.IntValue;
 			g_bCuffed[i] = false;
 			g_iPlayerPaperClips[i] = 0;
 		}
@@ -392,6 +392,9 @@ public Action HandCuffs_OnTakedamage(int victim, int &attacker, int &inflictor, 
 	if ((GetClientTeam(attacker) == CS_TEAM_CT) && (GetClientTeam(victim) == CS_TEAM_CT) && !gc_bHandCuffCT.BoolValue)
 		return Plugin_Continue;
 
+	if ((GetClientTeam(attacker) == CS_TEAM_T) && (GetClientTeam(victim) == CS_TEAM_T))
+		return Plugin_Continue;
+
 	if (IsValidEntity(weapon))
 	{
 		GetEntityClassname(weapon, sWeapon, sizeof(sWeapon));
@@ -401,7 +404,10 @@ public Action HandCuffs_OnTakedamage(int victim, int &attacker, int &inflictor, 
 		return Plugin_Continue;
 
 	if ((g_iPlayerHandCuffs[attacker] == 0) && (g_iCuffed == 0))
-		return Plugin_Continue;
+	{
+		damage = 0.0;
+		return Plugin_Handled;
+	}
 
 	if (g_bCuffed[victim])
 	{
